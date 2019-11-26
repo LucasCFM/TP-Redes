@@ -81,5 +81,10 @@ Descrição e especificação dos dados da mensagem de busca:
 
 ## Bibliografia
 
+[https://stackoverflow.com/questions/19412462/getting-distance-between-two-points-based-on-latitude-longitude]
+
+[https://stackoverflow.com/questions/42686300/how-to-check-if-coordinate-inside-certain-area-python]
+
+
 
 
