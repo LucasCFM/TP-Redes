@@ -2,8 +2,8 @@
 
 # Sumário
 
-1. [Descrição do problema](#descricao-do-problema)
-2. [Messagem de comunicação](#messagem-de-comunicacao)
+1. [Descrição do problema](#descrição-do-problema)
+2. [Messagem de comunicação](#messagem-de-comunicação)
 3. [Principais Classes](#principais-classes)
 4. [Bibliografia](#bibliografia)
 
@@ -76,7 +76,7 @@ Descrição e especificação dos dados da mensagem de busca:
 }
 
 
-## Principais Clases
+## Principais Classes
 
 #### UPD Cliente
 
