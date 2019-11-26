@@ -79,11 +79,11 @@ Descrição e especificação dos dados da mensagem de busca:
 ## Principais Classes
 
 #### UPD Cliente
-[Classe](/blob/master/app/client/udp_client.py)
+[Classe](/app/client/udp_client.py)
 
 
 #### UPD Server
-[Classe](/blob/master/app/srver/udp_server.py)
+[Classe](/app/srver/udp_server.py)
 
 
 
