@@ -83,7 +83,7 @@ Descrição e especificação dos dados da mensagem de busca:
 
 
 #### UPD Server
-[Classe](/app/srver/udp_server.py)
+[Classe](/app/server/udp_server.py)
 
 
 
