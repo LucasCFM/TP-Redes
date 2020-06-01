@@ -19,7 +19,7 @@ bufferSize = 1024
 # Create a UDP socket at client side
 
 UDPServerSocket = socket.socket(family=socket.AF_INET, type=socket.SOCK_DGRAM)
-UDPServerSocket.bind((localIP, localPort))
+# UDPServerSocket.bind((localIP, localPort))
 
 
 class Connector():
@@ -44,54 +44,60 @@ class Connector():
         global UDPServerSocket
         UDPServerSocket.settimeout(timeout)
 
+
     # TODO: Can split the function and make a send method and call send 2x inside it
     '''
     settimeout
     https://stackoverflow.com/questions/2719017/how-to-set-timeout-on-pythons-socket-recv-method
     '''
-    def get_message(self, byte_msg: bytearray = None):
+    def get_message(self):
         global UDPServerSocket
         
         self.set_timeout(3.0)
-
         try:
             bytes_received = UDPServerSocket.recvfrom(bufferSize)
         except Exception as e:
-            print('------ Exception while sending msg ------')
+            print('------ Exception while getting msg ------')
             print(e)
             print('retrying')
-            return False
-        msg_received = byte_to_json( bytes_received )
-        print(f'Message received {msg_received}')
-        return msg_received
+            return
+        print(f'bytes received {bytes_received}')
+        return bytes_received
     
-    
-    def send_msg(self, byte_msg: bytearray = None, destiny_address: tuple):
+
+    def __send(self, byte_msg: bytearray, destiny_address: tuple):
         global UDPServerSocket
         self.set_timeout(3.0)
 
-        print(f'sending byte msg {byte_msg}')
+        print(f'Sending byte msg: {byte_msg}')
+        print(f'to address: {destiny_address}')
         try:
             UDPServerSocket.sendto(byte_msg, destiny_address)
         except Exception as e:
             print('------ Exception while sending msg ------')
             print(e)
-            print('retrying')
-            self.set_timeout(3.0)
-            try:
-                UDPServerSocket.sendto(byte_msg, destiny_address)
-            except Exception as e:
-                print('------ Exception while sending msg ------')
-                print(e)
-            return False
-        
-        print('sent')
-        self.set_timeout(3.0)
+            raise e
+
+    def send_msg(self, byte_msg: bytearray, destiny_address: tuple):
+        print(f'Sending message')
         try:
-            byte_rsp = UDPServerSocket.recvfrom(bufferSize)
-        except Exception as e:
-            print('------ Exception while watting for server msg ------')
-            print(e)
+            self.__send( byte_msg, destiny_address )
+        except Exception:
+            print(f'Could not send message properly')
+            print(f'retrying ....')
+
+            try:
+                self.__send( byte_msg, destiny_address )
+            except Exception:
+                print(f'Could not send message properly')
+                print(f'Aborted')
+                return False
+        
+        try:
+            byte_rsp = self.get_message()
+        except Exception:
+            print(f'Could not get response properly')
+            print(f'Aborted')
             return False
         
         json_data = byte_to_json( byte_rsp )
