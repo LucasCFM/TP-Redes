@@ -1,5 +1,12 @@
+from app.db import db
 from app.db.models import Station, Fuel
 
+
+
+def create_station(lat: float, lon: float):
+    with db.atomic():
+        Station.create(lat=lat, lon=lon)
+    print(f'station created')
 
 
 def get_all_statations():
@@ -9,29 +16,43 @@ def get_all_statations():
     # Station.select().where()
 
 
+def get_station_by_coordanates(lat: float, lon: float) -> Station:
+    with db.atomic():
+        station = (Station.select().where( 
+            (Station.lat == lat) &
+            (Station.lon == lon)
+        ))
+    return station
+
+
 
 def insert_fuel_registry(station_lat: float, station_lon: float, fuel_type: int, fuel_price: float):
     """ Inserts or updates a fuel registry associated with a station """
-
-    station = Station.get_or_create(
-        Station.lat == station_lat, Station.lon == station_lon
-    )
-    print(f'Insert-fuel station: {station}')
-    fuel = get_station_fuel( station )
+    station = get_station_by_coordanates(station_lat, station_lon)
+    if not station:
+        print('Station does not exists yet, gonna create it')
+        create_station( station_lat, station_lon )
+        print(f'Station has been created')
+        station = get_station_by_coordanates(station_lat, station_lon)
+    
+    print(f'Station: {station}')
+    fuel = get_station_fuel( station, fuel_type )
     print(f'Insert-fuel fuel: {fuel}')
+
     if fuel:
+        print(f'Station already has this fuel, gonna update its price')
         fuel.price = fuel_price
         fuel.save()
     else:
-        fuel = Fuel(type=fuel_type, price=fuel_price, station=station)
-
+        print(f'Station does not have this fuel, creating it ...')
+        fuel = Fuel.create(type=fuel_type, price=fuel_price, station=station)
+    print(f'Fuel has been inserted/updated')
 
 
 def get_all_fuels_by_station(station: Station):
     """ Gets all fuels registered on a station """
 
     return Fuel.select().where( Fuel.station == station )
-
 
 
 def get_station_fuel(station: Station, fuel_type: int) -> Fuel:
