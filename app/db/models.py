@@ -18,15 +18,20 @@ class BaseModel(Model):
 class Station(BaseModel):
     id = PrimaryKeyField(unique=True)
 
-    lat = IntegerField()
-    lon = IntegerField()
-
-    def __init__(lat, lon):
-        self.lat = lat
-        self.lon = lon
+    lat = FloatField()
+    lon = FloatField()
+    
     
     def __str__(self):
         return f'{self.id} ({self.lat}, {self.lon})'
+    
+
+    def __hash__(self):
+        return hash((self.__class__, self._get_pk_value()))
+    
+    @property
+    def _hash(self):
+        return self.__hash__()
 
 
     # https://stackoverflow.com/questions/19412462/getting-distance-between-two-points-based-on-latitude-longitude
@@ -74,6 +79,19 @@ class Fuel(BaseModel):
     price = FloatField()
     
     station = ForeignKeyField(Station, backref='fuels')
+
+    def __hash__(self):
+        return hash((self.__class__, self._get_pk_value()))
+    
+    @property
+    def _hash(self):
+        return self.__hash__()
+
+    # def __init__(self, type: int = None, price: float = None, station: Station = None):
+    #     print(f'Initiating fuel: type {type}, price {price}, station {station}')
+    #     self.type = type
+    #     self.price = price
+    #     self.station = station
 
 
 
