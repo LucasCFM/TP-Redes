@@ -10,7 +10,7 @@ import socket, json
 
 from time import sleep
 
-from app.utils.data import byte_to_json
+from app.utils.data import byte_to_json, json_to_byte
 
 
 bufferSize = 1024
@@ -39,31 +39,14 @@ class Connector():
         
         print(f'Server changed to {self.server_address}')
 
-
-    def set_timeout(self, timeout: float):
-        global UDPServerSocket
-        UDPServerSocket.settimeout(timeout)
-
-
-    # TODO: Can split the function and make a send method and call send 2x inside it
     '''
     settimeout
     https://stackoverflow.com/questions/2719017/how-to-set-timeout-on-pythons-socket-recv-method
     '''
-    def get_message(self):
+    def set_timeout(self, timeout: float):
         global UDPServerSocket
-        
-        self.set_timeout(3.0)
-        try:
-            bytes_received = UDPServerSocket.recvfrom(bufferSize)
-        except Exception as e:
-            print('------ Exception while getting msg ------')
-            print(e)
-            print('retrying')
-            return
-        print(f'bytes received {bytes_received}')
-        return bytes_received
-    
+        UDPServerSocket.settimeout(timeout)
+
 
     def __send(self, byte_msg: bytearray, destiny_address: tuple):
         global UDPServerSocket
@@ -78,19 +61,58 @@ class Connector():
             print(e)
             raise e
 
+
+    def get_message(self):
+        global UDPServerSocket
+        
+        self.set_timeout(3.0)
+        try:
+            bytes_received, client_addrs = UDPServerSocket.recvfrom(bufferSize)
+        except Exception as e:
+            print('------ Exception while getting msg ------')
+            print(e)
+            print('retrying')
+            return
+        print(f'bytes received {bytes_received}')
+        
+        self.send_msg_received_confirmation( address=client_addrs )
+
+        return bytes_received
+    
+    
+    def send_msg_received_confirmation(self, address : tuple):
+        print(f'Sending confirmation message')
+        confirmation_msg = {
+            'success': True
+        }
+        confimationByteMsg : bytearray = json_to_byte( confirmation_msg )
+        print(f'Sending ...')
+        self.__send( confimationByteMsg, address )
+        print(f'Confirmation message sent!')
+
+
     def send_msg(self, byte_msg: bytearray, destiny_address: tuple):
+        """ Public method to send messages
+        Implements retransmission of messages, sending another message if the first fails
+        only returns False if both of them don't send properly 
+
+        param: byte_message : byte representation of the message string
+        param: destiny_address : address tuple that the message will be sent
+        returns: bool : If message was successfully sent or it faild
+        """
+        
         print(f'Sending message')
         try:
             self.__send( byte_msg, destiny_address )
         except Exception:
             print(f'Could not send message properly')
-            print(f'retrying ....')
+            print(f'Retrying ....')
 
             try:
                 self.__send( byte_msg, destiny_address )
             except Exception:
                 print(f'Could not send message properly')
-                print(f'Aborted')
+                print(f'Aborted !!')
                 return False
         
         try:
@@ -100,17 +122,9 @@ class Connector():
             print(f'Aborted')
             return False
         
-        json_data = byte_to_json( byte_rsp )
+        json_data = byte_to_json( byte_rsp ) # ERROR - Maybe does not need to receive response on line 97 (up here)
         if json_data['success'] == True:
             return True
         
         return False
-    
-    
-
-
-
-
-        
-
 
