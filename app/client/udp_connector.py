@@ -26,62 +26,71 @@ class Connector():
         self.server_ip = server_ip
         self.server_port = server_port
         self.server_address = (server_ip, server_port)
-    
-
-    def change_server(self, server_ip: str, server_port: int):
-        self.server_address = (server_ip, server_port)
-        print(f'Server changed to {self.server_address}')
+        print(f'Running connectio on {self.server_address}')
 
 
-    def set_timeout(self, timeout: float):
+    '''
+    settimeout - https://stackoverflow.com/questions/2719017/how-to-set-timeout-on-pythons-socket-recv-method
+    '''
+    def __set_timeout(self, timeout: float):
         global UDPClientSocket
         UDPClientSocket.settimeout(timeout)
 
-    # TODO: Can split the function and make a send method and call send 2x inside it
-    '''
-    settimeout
-    https://stackoverflow.com/questions/2719017/how-to-set-timeout-on-pythons-socket-recv-method
-    '''
-    def send_msg(self, byte_msg: bytearray = None):
-        global UDPClientSocket
-        self.set_timeout( 3.0 )
 
-        print(f'sending byte msg {byte_msg}')
+    def __get(self) -> bytearray:
+        """ Waits for a message from the server """
+        
+        print(f'Getting message from server')
+        try:
+            msg : bytearray = UDPClientSocket.recvfrom(bufferSize)
+        except Exception as e:
+            print('------ Exception while watting for server msg ------')
+            print(e)
+            raise e
+        print(f'Message received: {msg}')
+        return msg
+    
+
+    def __send(self, byte_msg: bytearray, timeout: float = 3.0):
+        global UDPClientSocket
+        self.__set_timeout( timeout )
+
+        print(f'Sending byte msg {byte_msg}')
         try:
             UDPClientSocket.sendto(byte_msg, self.server_address)
         except Exception as e:
             print('------ Exception while sending msg ------')
             print(e)
-            print('retrying')
-            self.set_timeout(3.0)
-            try:
-                UDPClientSocket.sendto(byte_msg, self.server_address)
-            except Exception as e:
-                print('------ Exception while sending msg ------')
-                print(e)
-            return False
-        
-        print('sent')
-        self.set_timeout(3.0)
+            raise e
+        print(f' Message sent')
+    
+    
+    def send_msg(self, byte_msg: bytearray = None):
+        """ Public method to send messages
+        Implements retransmission of messages, sending another message if the first fails
+        only returns False if both of them don't send properly 
+
+        param: byte_message : byte representation of the message string
+        param: destiny_address : address tuple that the message will be sent
+        returns: bool : If message was successfully sent or it faild
+        """
+
+        print(f'Sending message')
         try:
-            byte_rsp = UDPClientSocket.recvfrom(bufferSize)
+            self.__send( byte_msg )
         except Exception as e:
-            print('------ Exception while watting for server msg ------')
-            print(e)
-            return False
-        
+            print('Retrying ...')
+            try:
+                self.__send( byte_msg )
+            except Exception as e:
+                print(f'Could not send message properly. ABORTED IT')
+                return False
+
+        byte_rsp = self.__get()
         json_data = byte_to_json( byte_rsp )
-        if json_data['success'] == True:
+        if json_data['success'] is True:
+            print(f'Server successfully responded')
             return True
         
+        print(f'ERROR - Server did not respond')
         return False
-
-    
-    
-
-
-
-
-        
-
-
