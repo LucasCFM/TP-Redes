@@ -93,6 +93,8 @@ Descrição e especificação dos dados da mensagem de busca:
 
 [https://stackoverflow.com/questions/42686300/how-to-check-if-coordinate-inside-certain-area-python]
 
+[https://pythontic.com/modules/socket/udp-client-server-example]
+
 
 
 
