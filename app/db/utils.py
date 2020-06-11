@@ -16,6 +16,11 @@ def get_all_statations():
     # Station.select().where()
 
 
+def get_all_entries():
+    print(f'ALL ENTRIES TEST: {Station.select().join(Fuel)}')
+    return Station.select().join(Fuel)
+
+
 def get_station_by_coordanates(lat: float, lon: float) -> Station:
     with db.atomic():
         station = (Station.select().where( 
@@ -69,7 +74,7 @@ def get_station_fuel(station: Station, fuel_type: int) -> Fuel:
 def search_fuel_registry(fuel_type: int, center_lat: float, center_lon: float, max_distance: float):
     """ This method gets fuels prices in stations that are within a max distance from a point in earth """
 
-    fuels = []
+    fuel_result = None
     
     stations = get_all_statations()
     print(f'All stattions: {stations}')
@@ -78,14 +83,14 @@ def search_fuel_registry(fuel_type: int, center_lat: float, center_lon: float, m
         station_distance_from_location = station.distance_from_location(lat=center_lat, lon=center_lon)
         if station_distance_from_location <= max_distance:
             fuel = get_station_fuel(station, fuel_type)
-            fuel_dict = {
-                'station': station.id,
-                'fuel_price': fuel.price
-            }
-            fuels.append( fuel_dict )
+            if not fuel_result or fuel_result['price'] > fuel.price:
+                fuel_result = {
+                    'price': fuel.price,
+                    'station': station.id
+                }
     
-    if fuels:
-        return fuels
+    if fuel_result:
+        return fuel_result
 
 
 

@@ -3,8 +3,8 @@
         Client UPD connector
 
 implements retransmission of messages sent
-
 '''
+
 
 import socket, json
 
@@ -37,12 +37,12 @@ class Connector():
         UDPClientSocket.settimeout(timeout)
 
 
-    def __get(self) -> bytearray:
+    def get_message(self) -> bytearray:
         """ Waits for a message from the server """
         
         print(f'Getting message from server')
         try:
-            msg : bytearray = UDPClientSocket.recvfrom(bufferSize)
+            msg, address = UDPClientSocket.recvfrom(bufferSize)
         except Exception as e:
             print('------ Exception while watting for server msg ------')
             print(e)
@@ -86,7 +86,8 @@ class Connector():
                 print(f'Could not send message properly. ABORTED IT')
                 return False
 
-        byte_rsp = self.__get()
+        # Checks if message was successfuly gotten by server
+        byte_rsp = self.get_message()
         json_data = byte_to_json( byte_rsp )
         if json_data['success'] is True:
             print(f'Server successfully responded')

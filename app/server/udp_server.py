@@ -55,8 +55,14 @@ class Server():
 
     def get_message(self):
         msg = self.connector.get_message()
-        print(f'Message received: {msg}')
-        return byte_to_json( msg )
+        if not msg:
+            return None, None
+        
+        msg_bytes, client_address = msg
+        print(f'bytes Message received {msg_bytes}')
+        print(f'client address {client_address}')
+
+        return byte_to_json( msg_bytes ), client_address
 
 
     def send_msg_response(self, msg: dict, address: tuple):
@@ -67,62 +73,74 @@ class Server():
         self.connector.send_msg( byte_msg=byte_msg, destiny_address=address )
 
 
+    def send_success_response(self, address_tuple, msg = None):
+        print(f'Sending confirmation message')
+        response = {
+            'success': True
+        }
+        if msg: response['msg'] = msg
+        
+        self.send_msg_response( response, address_tuple )
+        print(f'Confirmation message sent')
+
+
+    def search_fuel(self, fuel_type: int, search_radius: float, center_lat: float, center_lon: float):
+        return search_fuel_registry(
+            fuel_type=fuel_type, center_lat=center_lat, center_lon=center_lon, max_distance=search_radius
+        )
+
+
     def insert_fuel(self, fuel_type: int, fuel_price: float, station_lat: float, station_lon: float):
-        insert_fuel_registry(
+        return insert_fuel_registry(
             station_lat=station_lat, station_lon=station_lon, 
             fuel_type=fuel_type, fuel_price=fuel_price
         )
 
 
-    def insert_gasolina_price(self, fuel_price: float, station_lat: float, station_lon: float):
-        print(f'Inserting gasosa: price: {fuel_price}, station_lat: {station_lat}, station_lon: {station_lon}')
-        return self.insert_fuel(
-            price = fuel_price, fuel_type = GASOLINA_FUEL_TYPE,
-            station_lat=station_lat, station_lon=station_lon
-        )
 
-    def insert_alcool_price(self, fuel_price: float, station_lat: float, station_lon: float):
-        print(f'Inserting alcool: price: {fuel_price}, station_lat: {station_lat}, station_lon: {station_lon}')
-        return self.insert_fuel(
-            price = fuel_price, fuel_type = ALCOOL_FUEL_TYPE,
-            station_lat=station_lat, station_lon=station_lon
-        )
+    # def insert_gasolina_price(self, fuel_price: float, station_lat: float, station_lon: float):
+    #     print(f'Inserting gasosa: price: {fuel_price}, station_lat: {station_lat}, station_lon: {station_lon}')
+    #     return self.insert_fuel(
+    #         price = fuel_price, fuel_type = GASOLINA_FUEL_TYPE,
+    #         station_lat=station_lat, station_lon=station_lon
+    #     )
 
-    def insert_diesel_price(self, fuel_price: float, station_lat: float, station_lon: float):
-        print(f'Inserting diesel: price: {fuel_price}, station_lat: {station_lat}, station_lon: {station_lon}')
-        return self.insert_fuel(
-            price = fuel_price, fuel_type = DIESEL_FUEL_TYPE,
-            station_lat=station_lat, station_lon=station_lon
-        )
+    # def insert_alcool_price(self, fuel_price: float, station_lat: float, station_lon: float):
+    #     print(f'Inserting alcool: price: {fuel_price}, station_lat: {station_lat}, station_lon: {station_lon}')
+    #     return self.insert_fuel(
+    #         price = fuel_price, fuel_type = ALCOOL_FUEL_TYPE,
+    #         station_lat=station_lat, station_lon=station_lon
+    #     )
 
+    # def insert_diesel_price(self, fuel_price: float, station_lat: float, station_lon: float):
+    #     print(f'Inserting diesel: price: {fuel_price}, station_lat: {station_lat}, station_lon: {station_lon}')
+    #     return self.insert_fuel(
+    #         price = fuel_price, fuel_type = DIESEL_FUEL_TYPE,
+    #         station_lat=station_lat, station_lon=station_lon
+    #     )
 
+    
 
-    def search_fuel(self, fuel_type: int, search_raidus: float, center_lat: float, center_lon: float):
-        search_fuel_registry(
-            fuel_type=fuel_type, center_lat=center_lat, center_lon=center_lon, max_distance=search_raidus
-        )
+    # def search_gasolina_price(self, search_radius: float, center_lat: float, center_lon: float):
+    #     print(f'Inserting diesel: center_lat: {center_lat}, center_lon: {center_lon}, radius: {search_radius}')
+    #     return self.search_fuel(
+    #         fuel_type = GASOLINA_FUEL_TYPE, search_radius=search_radius,
+    #         center_lat=center_lat, center_lon=center_lon
+    #     )
 
+    # def search_alcool_price(self, search_radius: float, center_lat: float, center_lon: float):
+    #     print(f'Inserting diesel: center_lat: {center_lat}, center_lon: {center_lon}, radius: {search_radius}')
+    #     return self.search_fuel(
+    #         fuel_type = ALCOOL_FUEL_TYPE, search_radius=search_radius,
+    #         center_lat=center_lat, center_lon=center_lon
+    #     )
 
-    def search_gasolina_price(self, search_raidus: float, center_lat: float, center_lon: float):
-        print(f'Inserting diesel: center_lat: {center_lat}, center_lon: {center_lon}, radius: {search_raidus}')
-        return self.search_fuel(
-            fuel_type = GASOLINA_FUEL_TYPE, search_raidus=search_raidus,
-            center_lat=center_lat, center_lon=center_lon
-        )
-
-    def search_alcool_price(self, search_raidus: float, center_lat: float, center_lon: float):
-        print(f'Inserting diesel: center_lat: {center_lat}, center_lon: {center_lon}, radius: {search_raidus}')
-        return self.search_fuel(
-            fuel_type = ALCOOL_FUEL_TYPE, search_raidus=search_raidus,
-            center_lat=center_lat, center_lon=center_lon
-        )
-
-    def search_diesel_price(self, search_raidus: float, center_lat: float, center_lon: float):
-        print(f'Inserting diesel: center_lat: {center_lat}, center_lon: {center_lon}, radius: {search_raidus}')
-        return self.search_fuel(
-            fuel_type = DIESEL_FUEL_TYPE, search_raidus=search_raidus,
-            center_lat=center_lat, center_lon=center_lon
-        )
+    # def search_diesel_price(self, search_radius: float, center_lat: float, center_lon: float):
+    #     print(f'Inserting diesel: center_lat: {center_lat}, center_lon: {center_lon}, radius: {search_radius}')
+    #     return self.search_fuel(
+    #         fuel_type = DIESEL_FUEL_TYPE, search_radius=search_radius,
+    #         center_lat=center_lat, center_lon=center_lon
+    #     )
 
 
 

@@ -1,4 +1,3 @@
-
 import json
 
 from app.client.udp_connector import Connector
@@ -30,11 +29,13 @@ class Client():
     name: str = ''
 
 
-    def __init__(self, 
-        client_name: str, 
-        server_address: str = '127.0.0.1', server_port: int = 10000
-    ):
+    def __init__(self, client_name: str, server_address: str, server_port: int):
+        if not server_address:
+            server_address = '127.0.0.1'
+        if not server_port:
+            server_port = 10000
         print(f'Strating client {client_name} for server {server_address}:{server_port}')
+
         self.name = client_name
         self.server_address = server_address
         self.server_port = server_port
@@ -47,7 +48,24 @@ class Client():
         )
 
 
+    def get_message(self) -> dict:
+        print(f'Getting new message')
+        try:
+            msg = self.connector.get_message()
+        except Exception:
+            return False
+        
+        if not msg:
+            print('No message has been received')
+            return False
+        
+        return byte_to_json( msg )
+
+
     def send_msg(self, json_data: json):
+        global MSG_ID_COUNT
+        MSG_ID_COUNT += 1
+
         print(f'Sending json msg: {json_data}')
         byte_msg = json_to_byte(json_data)
 
@@ -55,12 +73,9 @@ class Client():
         self.connector.send_msg( byte_msg=byte_msg )
 
 
-
     #### --------- ACTIONS ---------
     ############ INSERT DATA PICE
     def send_fuel_price(self, price: float, fuel_type: int, station_lat: float, station_lon: float):
-        global MSG_ID_COUNT
-
         data = {
             'type': INSERT_FUEL_PRICE_TYPE,
             'id': MSG_ID_COUNT,
@@ -70,9 +85,14 @@ class Client():
             'station_lon': station_lon
         }
 
-        if self.send_msg( json_data=data ):
-            MSG_ID_COUNT += 1
-            return True
+        self.send_msg( json_data=data )
+        msg = self.get_message()
+        try:
+            if msg['success'] is True:
+                print('Fuel has been successfuly processed')
+                return True
+        except:
+            print('Message is not a success one')
         return False
     
 
@@ -98,10 +118,9 @@ class Client():
         )
 
 
-    ############ SEARCH PICE
-    def search_fuel_price(self, fuel_type: int, search_radius: float, center_lat: float, center_lon: float):
-        global MSG_ID_COUNT
-
+    ############ SEARCH PRICE
+    def search_fuel_price(self, fuel_type: int, search_radius: float, center_lat: float, center_lon: float) -> dict:
+        print(f'Gonna send a search request')
         data = {
             'type': SEARCH_FUEL_PRICE_TYPE,
             'id': MSG_ID_COUNT,
@@ -111,10 +130,16 @@ class Client():
             'center_lon': center_lon
         }
 
-        if self.send_msg( json_data=data ):
-            MSG_ID_COUNT += 1
-            return True
+        self.send_msg( json_data=data )
+        msg = self.get_message()
+        try:
+            if msg['success'] is True:
+                print('Search has been successfuly done')
+                return msg
+        except:
+            print('Message is not a success one')
         return False
+
     
     def search_gasolina_price(self, search_radius: float, center_lat: float, center_lon: float):
         print(f'Search gasosa price: radius: {search_radius}, center_lat: {center_lat}, center_lon: {center_lon}')
@@ -135,11 +160,6 @@ class Client():
         return self.send_fuel_price(
             fuel_type = DIESEL_FUEL_TYPE, search_radius=search_radius,
             center_lat=center_lat, center_lon=center_lon
-
-
-
-
-        
-
+        )
 
 

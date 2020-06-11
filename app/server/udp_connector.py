@@ -56,6 +56,7 @@ class Connector():
             raise e
 
 
+    # Get Message Example - https://wiki.python.org/moin/UdpCommunication
     def get_message(self):
         global UDPServerSocket
         
@@ -68,19 +69,17 @@ class Connector():
             print('retrying')
             return
         print(f'bytes received {bytes_received}')
-        
-        self.send_msg_received_confirmation( address=client_addrs )
 
-        return bytes_received
+        return bytes_received, client_addrs
     
 
-    def send_msg_received_confirmation(self, address : tuple):
-        print(f'Sending confirmation message')
-        confirmation_msg = {
-            'success': True
-        }
-        confimationByteMsg : bytearray = json_to_byte( confirmation_msg )
-        print(f'Sending ...')
-        self.send_msg( confimationByteMsg, address )
-        print(f'Confirmation message sent!')
+    # def send_msg_received_confirmation(self, address : tuple):
+    #     print(f'Sending confirmation message')
+    #     confirmation_msg = {
+    #         'success': True
+    #     }
+    #     confimationByteMsg : bytearray = json_to_byte( confirmation_msg )
+    #     print(f'Sending ...')
+    #     self.send_msg( confimationByteMsg, address )
+    #     print(f'Confirmation message sent!')
 
