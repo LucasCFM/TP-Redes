@@ -127,7 +127,3 @@ if __name__ == '__main__':
             print(f'Invalid request type: {request_type}')
         
         request_type = get_request_type()
-
-    
-
-

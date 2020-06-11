@@ -28,7 +28,7 @@ Está mesagem é representada por um dicionário contendo seus atributos, que é
 
 
 Descrição e especificação dos dados da mensagem de inserção de preço:
-
+```
 {
 
 ​	'type': 'D', # char(1)
@@ -44,7 +44,7 @@ Descrição e especificação dos dados da mensagem de inserção de preço:
 ​	'station_lon': station_lon # float
 
 }
-
+```
 
 
 #### Messagem de pesquisa
@@ -58,7 +58,7 @@ Da mesma forma que a mensagem de busca a mensagem de pesquisa é formada por um 
 
 
 Descrição e especificação dos dados da mensagem de busca:
-
+```
 {
 
 ​	'type': 'P', # char(1)
@@ -74,7 +74,7 @@ Descrição e especificação dos dados da mensagem de busca:
 ​	'center_lon': CENTER_LON # float
 
 }
-
+```
 
 ## Principais Classes
 
