@@ -97,33 +97,7 @@ class Board(object):
         self.shipList.append( self.__getNewFreeShip() )
 
     def __getNewFreeShip(self):
-        # orientation = ship.getOrientation() # TODO:
-        # coordinates = ship.getCoords()
-        # row_size -> self.rowSize
-        # col_size -> self.colSize
-        # size -> ship.getSize
         return randomShip(self.board)
-
-        # if orientation == 'horizontal':
-        #     if location['row'] in range(row_size):
-        #         coordinates = []
-        #         for index in range(size):
-        #             if location['col'] + index in range(col_size):
-        #                 self.coordinates.append({'row': location['row'], 'col': location['col'] + index})
-        #             else:
-        #                 raise IndexError("Column is out of range.")
-        #     else:
-        #         raise IndexError("Row is out of range.")
-        # elif orientation == 'vertical':
-        #     if location['col'] in range(col_size):
-        #         self.coordinates = []
-        #         for index in range(size):
-        #             if location['row'] + index in range(row_size):
-        #                 self.coordinates.append({'row': location['row'] + index, 'col': location['col']})
-        #             else:
-        #                 raise IndexError("Row is out of range.")
-        #     else:
-        #         raise IndexError("Column is out of range.")
 
         def __str__():
             pass # TODO:
