@@ -65,16 +65,16 @@ while True:
     logMsg(msg)
     msgAction = msg['action']
 
-    if msgAction is SET_RANDOM_BOARD:
+    if msgAction is SET_RANDOM_BOARD_ACTION:
         setRandomBoardAction( msg, clientAddress )
     
-    elif msgAction is SET_CUSTOM_BOARD:
+    elif msgAction is SET_CUSTOM_BOARD_ACTION:
         setCustomBoardAction( msg, clientAddress )
     
-    elif msgAction is SHOW_BOARDS:
+    elif msgAction is SHOW_BOARDS_ACTION:
         showBoardsAction( msg, clientAddress )
     
-    elif msgAction is SHOOT:
+    elif msgAction is SHOOT_ACTION:
         shootAction( msg, clientAddress )
     
     else:

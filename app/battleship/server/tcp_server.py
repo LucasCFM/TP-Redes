@@ -76,7 +76,7 @@ class Server(object):
                     2, 2, 2, 2
                 ]
             }
-            self.users[ userId ] = {}
+            self.users[ userId ] = {} # CLEAR USER BOARD
             userBoard = Board( boardSize, shipDesc )
             serverBoard = Board( boardSize, shipDesc )
             
